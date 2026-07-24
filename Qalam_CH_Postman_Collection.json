@@ -1,0 +1,395 @@
+{
+  "info": {
+    "name": "Qalam CH Library API",
+    "description": "API endpoints for the Qalam CH library application, including Admin Dashboard, Suggestions, Archiving, and Management APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"John Doe\", \"email\": \"john@example.com\", \"password\": \"password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"test@example.com\", \"password\": \"password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/google",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"YOUR_GOOGLE_ACCESS_TOKEN_HERE\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public API",
+      "item": [
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "Get Authors",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/authors"
+          }
+        },
+        {
+          "name": "Get Latest Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/books/latest"
+          }
+        },
+        {
+          "name": "Get Most Read Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/books/most-read"
+          }
+        },
+        {
+          "name": "Get Suggested Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/books/suggested"
+          }
+        },
+        {
+          "name": "Get Book of the Day",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/books/book-of-the-day"
+          }
+        },
+        {
+          "name": "Get Loved Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/books/loved"
+          }
+        },
+        {
+          "name": "Get Advertisements",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/advertisements"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Protected User Library",
+      "item": [
+        {
+          "name": "Get User Library (Favorites/Shelf/History)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/library",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/library/favorites",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"book_id\": 1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Toggle Shelf",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/library/shelf",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"book_id\": 1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin API",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"admin\", \"password\": \"password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Admin Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/dashboard",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Book (With Suggested Flag)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/books",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Sample Book\", \"slug\": \"sample-book\", \"description\": \"Book description\", \"author_id\": 1, \"category_id\": 1, \"is_book_of_the_day\": false, \"is_suggested\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Book (Set Suggested)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/admin/books/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"is_suggested\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Archive Book",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/admin/books/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Archived Books",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/admin/books/archived",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Restore Book",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/books/1/restore",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Author",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/authors",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Author Name\", \"slug\": \"author-name\", \"country\": \"Egypt\", \"bio\": \"Author biography\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/categories",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Fiction\", \"slug\": \"fiction\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create Advertisement",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/advertisements",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Summer Sale\", \"image_path\": \"/ads/summer.jpg\", \"link_url\": \"https://example.com\", \"is_active\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/admin/logout",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_USER_TOKEN_HERE"
+    },
+    {
+      "key": "adminToken",
+      "value": "YOUR_ADMIN_TOKEN_HERE"
+    }
+  ]
+}
