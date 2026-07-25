@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/my-laravel-app
+            cd /home/u111226452/domains/eladrabarakelkhyam.com/public_html/ch
             
             git pull origin main
             composer install --no-interaction --prefer-dist --optimize-autoloader
