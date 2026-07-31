@@ -12,7 +12,7 @@ Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -52,13 +52,28 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', 'ability:admin'])->group(function () {
         Route::post('/logout', [\App\Http\Controllers\Api\Admin\AuthController::class, 'logout']);
         Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
-        
+
+
+        Route::apiResource('authors', \App\Http\Controllers\Api\Admin\AuthorController::class);
+        Route::apiResource('categories', \App\Http\Controllers\Api\Admin\CategoryController::class);
+        Route::apiResource('advertisements', \App\Http\Controllers\Api\Admin\AdvertisementController::class);
+        Route::apiResource('admins', \App\Http\Controllers\Api\Admin\AdminController::class);
+        Route::apiResource('users', \App\Http\Controllers\Api\Admin\UserController::class);
+
+        Route::get('/books/book-of-the-day', [\App\Http\Controllers\Api\Admin\BookController::class, 'bookOfTheDay']);
+        Route::patch('/books/{id}/set-book-of-the-day', [\App\Http\Controllers\Api\Admin\BookController::class, 'setBookOfTheDay']);
+
+        // مسارات الكتب المقترحة (مفصولة)
+        Route::get('/books/suggested', [\App\Http\Controllers\Api\Admin\BookController::class, 'suggestedBooks']);
+        Route::patch('/books/{id}/toggle-suggested', [\App\Http\Controllers\Api\Admin\BookController::class, 'toggleSuggested']);
+
+        // مسارات الأرشيف (Soft Deletes)
         Route::get('/books/archived', [\App\Http\Controllers\Api\Admin\BookController::class, 'archived']);
         Route::post('/books/{id}/restore', [\App\Http\Controllers\Api\Admin\BookController::class, 'restore']);
-        
-        Route::apiResource('authors', \App\Http\Controllers\Api\Admin\AuthorController::class)->except(['index', 'show']);
-        Route::apiResource('categories', \App\Http\Controllers\Api\Admin\CategoryController::class)->except(['index', 'show']);
-        Route::apiResource('books', \App\Http\Controllers\Api\Admin\BookController::class)->except(['index', 'show']);
-        Route::apiResource('advertisements', \App\Http\Controllers\Api\Admin\AdvertisementController::class)->except(['index', 'show']);
+
+        // مسارات الـ CRUD الأساسية (يجب أن تكون في النهاية لتجنب تداخل مسار المعرف {id})
+        Route::apiResource('books', \App\Http\Controllers\Api\Admin\BookController::class);
+
+
     });
 });

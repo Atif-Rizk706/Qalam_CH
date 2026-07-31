@@ -4,10 +4,46 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Advertisement;
+use App\Traits\ApiResponse;
+use App\Http\Resources\AdvertisementResource;
 use Illuminate\Http\Request;
 
 class AdvertisementController extends Controller
 {
+    use ApiResponse;
+
+    public function index(Request $request)
+    {
+        $query = Advertisement::latest();
+
+        if ($request->has('search') && $request->search != '') {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', "%{$searchTerm}%")
+                  ->orWhere('url', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        $advertisements = $query->paginate(15);
+
+        return $this->successResponse(
+            AdvertisementResource::collection($advertisements)->response()->getData(true),
+            'Advertisements retrieved successfully',
+            200
+        );
+    }
+
+    public function show($id)
+    {
+        $advertisement = Advertisement::findOrFail($id);
+
+        return $this->successResponse(
+            new AdvertisementResource($advertisement),
+            'Advertisement retrieved successfully',
+            200
+        );
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -21,7 +57,7 @@ class AdvertisementController extends Controller
 
         $advertisement = Advertisement::create($validated);
 
-        return response()->json(['message' => 'Advertisement created successfully', 'data' => $advertisement], 201);
+        return $this->successResponse(new AdvertisementResource($advertisement), 'Advertisement created successfully', 201);
     }
 
     public function update(Request $request, $id)
@@ -39,7 +75,7 @@ class AdvertisementController extends Controller
 
         $advertisement->update($validated);
 
-        return response()->json(['message' => 'Advertisement updated successfully', 'data' => $advertisement]);
+        return $this->successResponse(new AdvertisementResource($advertisement), 'Advertisement updated successfully', 200);
     }
 
     public function destroy($id)
@@ -47,6 +83,6 @@ class AdvertisementController extends Controller
         $advertisement = Advertisement::findOrFail($id);
         $advertisement->delete();
 
-        return response()->json(['message' => 'Advertisement deleted successfully']);
+        return $this->successResponse(null, 'Advertisement deleted successfully', 200);
     }
 }

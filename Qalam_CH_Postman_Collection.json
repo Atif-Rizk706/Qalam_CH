@@ -185,195 +185,694 @@
       "name": "Admin API",
       "item": [
         {
-          "name": "Admin Login",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/login",
-            "body": {
-              "mode": "raw",
-              "raw": "{\"username\": \"admin\", \"password\": \"password\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Admin Login",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/login",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
+            },
+            {
+              "name": "Admin Logout",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/logout",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Get Admin Dashboard Statistics",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/admin/dashboard",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+          "name": "Dashboard",
+          "item": [
+            {
+              "name": "Get Admin Dashboard Statistics",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/dashboard",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ]
-          }
+            }
+          ]
         },
         {
-          "name": "Create Book (With Suggested Flag)",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/books",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+          "name": "Books",
+          "item": [
+            {
+              "name": "Get All Books",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/books?search=",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"title\": \"Sample Book\", \"slug\": \"sample-book\", \"description\": \"Book description\", \"author_id\": 1, \"category_id\": 1, \"is_book_of_the_day\": false, \"is_suggested\": true}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            },
+            {
+              "name": "Get Single Book",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/books/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Book",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/books",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Sample Book\",\n  \"slug\": \"sample-book\",\n  \"description\": \"Book description\",\n  \"author_id\": 1,\n  \"category_id\": 1,\n  \"is_book_of_the_day\": false,\n  \"is_suggested\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
-            }
-          }
-        },
-        {
-          "name": "Update Book (Set Suggested)",
-          "request": {
-            "method": "PUT",
-            "url": "{{baseUrl}}/api/admin/books/1",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"is_suggested\": true}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            },
+            {
+              "name": "Update Book",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/books/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Book\",\n  \"is_suggested\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
+            },
+            {
+              "name": "Archive Book",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/books/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Archived Books",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/books/archived",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Restore Book",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/books/1/restore",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Book of the Day",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/books/book-of-the-day",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Set Book of the Day",
+              "request": {
+                "method": "PATCH",
+                "url": "{{baseUrl}}/api/admin/books/1/set-book-of-the-day",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Suggested Books",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/books/suggested",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Toggle Suggested",
+              "request": {
+                "method": "PATCH",
+                "url": "{{baseUrl}}/api/admin/books/1/toggle-suggested",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Archive Book",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/admin/books/1",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+          "name": "Authors",
+          "item": [
+            {
+              "name": "Get All Authors",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/authors",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "Get Archived Books",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/admin/books/archived",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+            },
+            {
+              "name": "Get Single Author",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/authors/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          "name": "Restore Book",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/books/1/restore",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ]
-          }
-        },
-        {
-          "name": "Create Author",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/authors",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"name\": \"Author Name\", \"slug\": \"author-name\", \"country\": \"Egypt\", \"bio\": \"Author biography\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            },
+            {
+              "name": "Create Author",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/authors",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Author Name\",\n  \"slug\": \"author-name\",\n  \"country\": \"Egypt\",\n  \"bio\": \"Author biography\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
-            }
-          }
-        },
-        {
-          "name": "Create Category",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/categories",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"name\": \"Fiction\", \"slug\": \"fiction\"}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            },
+            {
+              "name": "Update Author",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/authors/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Author\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
+            },
+            {
+              "name": "Delete Author",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/authors/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Create Advertisement",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/advertisements",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+          "name": "Categories",
+          "item": [
+            {
+              "name": "Get All Categorys",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/categories",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"title\": \"Summer Sale\", \"image_path\": \"/ads/summer.jpg\", \"link_url\": \"https://example.com\", \"is_active\": true}",
-              "options": {
-                "raw": {
-                  "language": "json"
+            },
+            {
+              "name": "Get Single Category",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/categories/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/categories",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Fiction\",\n  \"slug\": \"fiction\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
                 }
               }
+            },
+            {
+              "name": "Update Category",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/categories/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Category\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Category",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/categories/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Archived Categories",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/categories/archived",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Restore Category",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/categories/1/restore",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Admin Logout",
-          "request": {
-            "method": "POST",
-            "url": "{{baseUrl}}/api/admin/logout",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
+          "name": "Advertisements",
+          "item": [
+            {
+              "name": "Get All Advertisements",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/advertisements",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
               }
-            ]
-          }
+            },
+            {
+              "name": "Get Single Advertisement",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/advertisements/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Advertisement",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/advertisements",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Summer Sale\",\n  \"image_path\": \"/ads/summer.jpg\",\n  \"link_url\": \"https://example.com\",\n  \"is_active\": true,\n  \"start_time\": \"2023-01-01\",\n  \"end_time\": \"2023-12-31\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Advertisement",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/advertisements/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Advertisement\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Advertisement",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/advertisements/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admins",
+          "item": [
+            {
+              "name": "Get All Admins",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/admins",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Single Admin",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/admins/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create Admin",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/admins",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Admin 2\",\n  \"email\": \"admin2@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Admin",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/admins/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Admin\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Admin",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/admins/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Get All Users",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/users",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Get Single User",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/admin/users/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "Create User",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/admin/users",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"User 1\",\n  \"email\": \"user1@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "url": "{{baseUrl}}/api/admin/users/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated User\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/admin/users/1",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
     }
