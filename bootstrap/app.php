@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->shouldRenderJsonWhen(function (\Illuminate\Http\Request $request) {
+            return $request->is('api/*');
+        });
+
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
             if ($request->is('api/*') || $request->wantsJson()) {
                 $statusCode = 500;
