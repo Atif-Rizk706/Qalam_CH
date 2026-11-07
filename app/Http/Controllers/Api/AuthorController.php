@@ -15,25 +15,21 @@ class AuthorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return $this->successResponse(AuthorResource::collection(Author::all()), 'Authors retrieved successfully.');
+        $query = Author::with('country');
+
+        if ($request->has('is_contemporary')) {
+            $query->where('is_contemporary', $request->boolean('is_contemporary'));
+        }
+
+        return $this->successResponse(AuthorResource::collection($query->get()), 'Authors retrieved successfully.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
+        $author = Author::with(['country', 'books'])->findOrFail($id);
+        return $this->successResponse(new AuthorResource($author), 'Author retrieved successfully.');
     }
 
     /**

@@ -30,9 +30,16 @@ Route::middleware('auth:sanctum')->group(function () {
 // Public Library Routes
 Route::apiResource('categories', \App\Http\Controllers\Api\CategoryController::class)->only(['index', 'show']);
 Route::apiResource('authors', \App\Http\Controllers\Api\AuthorController::class)->only(['index', 'show']);
+Route::get('/countries', [\App\Http\Controllers\Api\CountryController::class, 'index']);
+Route::get('/countries/{id}', [\App\Http\Controllers\Api\CountryController::class, 'show']);
+
+// Visitor Tracking & Analytics
+Route::post('/track-visit', [\App\Http\Controllers\Api\VisitorController::class, 'track']);
+Route::get('/analytics/visitors', [\App\Http\Controllers\Api\VisitorController::class, 'stats']);
 
 Route::get('/books/latest', [\App\Http\Controllers\Api\BookController::class, 'latest']);
 Route::get('/books/most-read', [\App\Http\Controllers\Api\BookController::class, 'mostRead']);
+Route::post('/books/{id}/read', [\App\Http\Controllers\Api\BookController::class, 'recordRead']);
 Route::get('/books/suggested', [\App\Http\Controllers\Api\BookController::class, 'suggested']);
 Route::get('/books/book-of-the-day', [\App\Http\Controllers\Api\BookController::class, 'bookOfTheDay']);
 Route::get('/books/loved', [\App\Http\Controllers\Api\BookController::class, 'lovedBooks']); // Popular/Loved books
@@ -52,6 +59,8 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', 'ability:admin'])->group(function () {
         Route::post('/logout', [\App\Http\Controllers\Api\Admin\AuthController::class, 'logout']);
         Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
+        Route::get('/analytics/visitors', [\App\Http\Controllers\Api\VisitorController::class, 'stats']);
+        Route::post('/countries/sync', [\App\Http\Controllers\Api\CountryController::class, 'sync']);
 
 
         Route::apiResource('authors', \App\Http\Controllers\Api\Admin\AuthorController::class);

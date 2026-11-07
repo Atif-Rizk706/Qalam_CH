@@ -14,15 +14,24 @@ class AuthorController extends Controller
 
     public function index(Request $request)
     {
-        $query = Author::latest();
+        $query = Author::with('country')->latest();
 
         if ($request->has('search') && $request->search != '') {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
                   ->orWhere('slug', 'like', "%{$searchTerm}%")
-                  ->orWhere('country', 'like', "%{$searchTerm}%");
+                  ->orWhere('country', 'like', "%{$searchTerm}%")
+                  ->orWhere('death_year', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('country', function ($cq) use ($searchTerm) {
+                      $cq->where('name_ar', 'like', "%{$searchTerm}%")
+                        ->orWhere('name_en', 'like', "%{$searchTerm}%");
+                  });
             });
+        }
+
+        if ($request->has('is_contemporary')) {
+            $query->where('is_contemporary', $request->boolean('is_contemporary'));
         }
 
         $authors = $query->paginate(15);
@@ -36,7 +45,7 @@ class AuthorController extends Controller
 
     public function show($id)
     {
-        $author = Author::findOrFail($id);
+        $author = Author::with('country')->findOrFail($id);
 
         return $this->successResponse(
             new AuthorResource($author),
@@ -51,11 +60,16 @@ class AuthorController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:authors,slug',
             'country' => 'nullable|string',
+            'country_id' => 'nullable|exists:countries,id',
             'bio' => 'nullable|string',
             'image_path' => 'nullable|string',
+            'is_contemporary' => 'nullable|boolean',
+            'death_year' => 'nullable|string|max:50',
+            'birth_year' => 'nullable|string|max:50',
         ]);
 
         $author = Author::create($validated);
+        $author->load('country');
 
         return $this->successResponse(new AuthorResource($author), 'Author created successfully', 201);
     }
@@ -68,11 +82,16 @@ class AuthorController extends Controller
             'name' => 'sometimes|string|max:255',
             'slug' => 'sometimes|string|unique:authors,slug,' . $author->id,
             'country' => 'nullable|string',
+            'country_id' => 'nullable|exists:countries,id',
             'bio' => 'nullable|string',
             'image_path' => 'nullable|string',
+            'is_contemporary' => 'nullable|boolean',
+            'death_year' => 'nullable|string|max:50',
+            'birth_year' => 'nullable|string|max:50',
         ]);
 
         $author->update($validated);
+        $author->load('country');
 
         return $this->successResponse(new AuthorResource($author), 'Author updated successfully', 200);
     }

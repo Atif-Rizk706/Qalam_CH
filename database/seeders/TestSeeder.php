@@ -15,6 +15,7 @@ class TestSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            CountrySeeder::class,
             AdminAndAdSeeder::class,
         ]);
 

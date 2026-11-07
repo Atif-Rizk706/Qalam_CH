@@ -10,6 +10,7 @@ class ProductionSeeder extends Seeder
     {
         // Add production specific seeders here, e.g., essential roles, initial admin, etc.
         $this->call([
+            CountrySeeder::class,
             AdminAndAdSeeder::class,
         ]);
     }

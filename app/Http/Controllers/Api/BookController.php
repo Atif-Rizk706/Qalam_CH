@@ -31,9 +31,26 @@ class BookController extends Controller
         return $this->successResponse(BookResource::collection(Book::with(["author"])->latest()->take(10)->get()), 'Latest books retrieved successfully.');
     }
 
-    public function mostRead()
+    public function mostRead(Request $request)
     {
-        return $this->successResponse(BookResource::collection(Book::with(["author"])->orderByDesc("views_count")->take(10)->get()), 'Most read books retrieved successfully.');
+        $limit = (int) $request->input('limit', 10);
+        $books = Book::with(['author', 'category'])
+            ->orderByDesc('views_count')
+            ->take($limit)
+            ->get();
+
+        return $this->successResponse(BookResource::collection($books), 'Most read books retrieved successfully.');
+    }
+
+    public function recordRead($id)
+    {
+        $book = Book::findOrFail($id);
+        $book->increment('views_count');
+
+        return $this->successResponse([
+            'book_id' => $book->id,
+            'views_count' => $book->views_count,
+        ], 'Book read count incremented successfully.');
     }
 
     public function suggested()
