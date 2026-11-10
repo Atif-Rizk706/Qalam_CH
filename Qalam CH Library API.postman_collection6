@@ -93,7 +93,7 @@
                     "response": []
                 },
                 {
-                    "name": "Forgot Password (Send OTP/Code)",
+                    "name": "1. Forgot Password (Send OTP to Email)",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -125,7 +125,7 @@
                     "response": []
                 },
                 {
-                    "name": "Reset Password",
+                    "name": "2. Verify Reset Code (Returns reset_token)",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -136,7 +136,39 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}",
+                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"code\": \"123456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/verify-reset-code",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "verify-reset-code"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3. Reset Password (with reset_token)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"user@example.com\",\n  \"reset_token\": \"PASTE_RESET_TOKEN_FROM_STEP_2_HERE\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
