@@ -69,12 +69,99 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout.
+     * Logout from current device.
      */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
         return $this->successResponse(null, 'Logged out successfully.');
+    }
+
+    /**
+     * Logout from all devices.
+     */
+    public function logoutAll(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return $this->successResponse(null, 'Logged out from all devices successfully.');
+    }
+
+    /**
+     * Send password reset code (Forgot Password).
+     */
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.exists' => 'No user found with this email address.',
+        ]);
+
+        $code = sprintf("%06d", mt_rand(100000, 999999));
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => Hash::make($code),
+                'created_at' => now(),
+            ]
+        );
+
+        return $this->successResponse([
+            'email' => $request->email,
+            'reset_code' => config('app.debug') ? $code : null,
+        ], 'Password reset code has been sent successfully.');
+    }
+
+    /**
+     * Reset password using code.
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'code' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $record = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return $this->errorResponse('Invalid or expired reset code.', 422);
+        }
+
+        // Check if code expired (60 minutes)
+        if (\Carbon\Carbon::parse($record->created_at)->addMinutes(60)->isPast()) {
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return $this->errorResponse('Reset code has expired. Please request a new one.', 422);
+        }
+
+        // Validate code
+        if (!Hash::check($request->code, $record->token) && $request->code !== $record->token) {
+            return $this->errorResponse('Invalid reset code.', 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Revoke all existing tokens for security
+        $user->tokens()->delete();
+
+        // Delete used reset token
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        // Generate fresh authentication token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return $this->successResponse([
+            'token' => $token,
+            'user' => $user,
+        ], 'Password has been reset successfully.');
     }
 }

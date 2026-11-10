@@ -8,14 +8,22 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    // Profile Routes
+    Route::get('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
+    Route::put('/profile', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    Route::put('/profile/password', [\App\Http\Controllers\Api\ProfileController::class, 'updatePassword']);
 
     // Library Routes (Requires Auth)
     Route::post('/library/favorites', [\App\Http\Controllers\Api\LibraryController::class, 'toggleFavorite']);
@@ -52,6 +60,14 @@ Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'st
 // Public Advertisements Route
 Route::get('/advertisements', [\App\Http\Controllers\Api\AdvertisementController::class, 'index']);
 
+// Public Articles Routes
+Route::get('/article-types', [\App\Http\Controllers\Api\ArticleController::class, 'types']);
+Route::get('/articles/latest', [\App\Http\Controllers\Api\ArticleController::class, 'latest']);
+Route::get('/articles/most-read', [\App\Http\Controllers\Api\ArticleController::class, 'mostRead']);
+Route::get('/articles', [\App\Http\Controllers\Api\ArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{id}', [\App\Http\Controllers\Api\ArticleController::class, 'show'])->name('articles.show');
+Route::post('/articles/{id}/read', [\App\Http\Controllers\Api\ArticleController::class, 'recordRead']);
+
 // Admin Routes
 Route::prefix('admin')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Api\Admin\AuthController::class, 'login']);
@@ -82,6 +98,20 @@ Route::prefix('admin')->group(function () {
 
         // مسارات الـ CRUD الأساسية (يجب أن تكون في النهاية لتجنب تداخل مسار المعرف {id})
         Route::apiResource('books', \App\Http\Controllers\Api\Admin\BookController::class);
+
+        // ======= Articles Admin Routes =======
+        // Article Types CRUD
+        Route::apiResource('article-types', \App\Http\Controllers\Api\Admin\ArticleTypeController::class);
+
+        // Articles - special routes BEFORE apiResource
+        Route::get('/articles/archived', [\App\Http\Controllers\Api\Admin\ArticleController::class, 'archived']);
+        Route::post('/articles/{id}/restore', [\App\Http\Controllers\Api\Admin\ArticleController::class, 'restore']);
+        Route::delete('/articles/{id}/force', [\App\Http\Controllers\Api\Admin\ArticleController::class, 'forceDelete']);
+        Route::patch('/articles/{id}/toggle-publish', [\App\Http\Controllers\Api\Admin\ArticleController::class, 'togglePublish']);
+        // Articles CRUD
+        Route::apiResource('articles', \App\Http\Controllers\Api\Admin\ArticleController::class)->names([
+            'show' => 'admin.articles.show',
+        ]);
 
 
     });

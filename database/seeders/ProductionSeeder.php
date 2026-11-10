@@ -12,6 +12,7 @@ class ProductionSeeder extends Seeder
         $this->call([
             CountrySeeder::class,
             AdminAndAdSeeder::class,
+            ArticleTypeSeeder::class,
         ]);
     }
 }

@@ -17,15 +17,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return $this->successResponse(CategoryResource::collection(Category::all()), 'Categories retrieved successfully.');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return $this->successResponse(
+            CategoryResource::collection(Category::withCount('books')->get()),
+            'Categories retrieved successfully.'
+        );
     }
 
     /**
@@ -33,7 +28,8 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::withCount('books')->findOrFail($id);
+        return $this->successResponse(new CategoryResource($category), 'Category retrieved successfully.');
     }
 
     /**

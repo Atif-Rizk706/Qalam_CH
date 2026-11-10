@@ -99,7 +99,7 @@ class CategoryController extends Controller
     }
     public function show($id)
     {
-        $category = Category::findOrFail($id);
+        $category = Category::withCount('books')->findOrFail($id);
 
         return $this->successResponse(
             new CategoryResource($category),

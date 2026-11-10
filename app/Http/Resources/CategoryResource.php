@@ -18,6 +18,7 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'books_count' => (int) ($this->books_count ?? $this->books()->count()),
             'icon_url' => $this->icon_path ? asset($this->icon_path) : null,
         ];
     }
