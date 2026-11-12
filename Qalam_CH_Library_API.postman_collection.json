@@ -248,7 +248,7 @@
             "name": "Public API",
             "item": [
                 {
-                    "name": "Get Categories",
+                    "name": "Get Categories (with books count)",
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -260,6 +260,66 @@
                             "path": [
                                 "api",
                                 "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Single Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/categories/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "categories",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Books by Category (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/categories/1/books?page=1&per_page=15",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "categories",
+                                "1",
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search within category books by title or description",
+                                    "disabled": true
+                                }
                             ]
                         }
                     },
@@ -549,20 +609,53 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{baseUrl}}/api/books",
+                            "raw": "{{baseUrl}}/api/books?category_id=1&page=1&per_page=15",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category_id",
+                                    "value": "1",
+                                    "description": "Filter by Category ID (or comma separated IDs: 1,2)"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "spiritual",
+                                    "description": "Filter by Category Slug (e.g. spiritual)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "author_id",
+                                    "value": "1",
+                                    "description": "Filter by Author ID",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search title, description, or author name",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                }
                             ]
                         }
                     },
                     "response": []
                 },
                 {
-                    "name": "Get Single Book (Auto increments views)",
+                    "name": "Get Single Book (Auto increments views + related_books)",
                     "request": {
                         "method": "GET",
                         "header": [

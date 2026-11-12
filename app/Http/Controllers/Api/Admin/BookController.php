@@ -36,7 +36,30 @@ class BookController extends Controller
             });
         }
 
-        $books = $query->paginate(15);
+        // فلترة بالقسم / التصنيف (سواء بالإيدي أو الـ slug)
+        if ($request->filled('category_id')) {
+            $categoryIds = is_array($request->category_id)
+                ? $request->category_id
+                : explode(',', $request->category_id);
+            $query->whereIn('category_id', $categoryIds);
+        } elseif ($request->filled('category')) {
+            $cat = $request->category;
+            $query->whereHas('category', function ($cq) use ($cat) {
+                if (is_numeric($cat)) {
+                    $cq->where('id', $cat);
+                } else {
+                    $cq->where('slug', $cat)->orWhere('name', $cat);
+                }
+            });
+        }
+
+        // فلترة بالمؤلف
+        if ($request->filled('author_id')) {
+            $query->where('author_id', $request->author_id);
+        }
+
+        $perPage = (int) $request->input('per_page', 15);
+        $books = $query->paginate($perPage);
 
         return $this->successResponse(
             BookResource::collection($books)->response()->getData(true),
@@ -158,12 +181,13 @@ class BookController extends Controller
     // 2. سلة المهملات (Archived / Restore)
     // ==========================================
 
-    public function archived()
+    public function archived(Request $request)
     {
-        $archivedBooks = Book::onlyTrashed()->with(['author', 'category'])->get();
+        $perPage = (int) $request->input('per_page', 15);
+        $archivedBooks = Book::onlyTrashed()->with(['author', 'category'])->latest()->paginate($perPage);
 
         return $this->successResponse(
-            BookResource::collection($archivedBooks),
+            BookResource::collection($archivedBooks)->response()->getData(true),
             'Archived books retrieved successfully',
             200
         );
@@ -208,12 +232,13 @@ class BookController extends Controller
     }
 
     // جلب الكتب المقترحة
-    public function suggestedBooks()
+    public function suggestedBooks(Request $request)
     {
-        $books = Book::where('is_suggested', true)->with(['author', 'category'])->latest()->get();
+        $perPage = (int) $request->input('per_page', 15);
+        $books = Book::where('is_suggested', true)->with(['author', 'category'])->latest()->paginate($perPage);
 
         return $this->successResponse(
-            BookResource::collection($books),
+            BookResource::collection($books)->response()->getData(true),
             'Suggested books retrieved',
             200
         );

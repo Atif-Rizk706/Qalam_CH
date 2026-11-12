@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Public Library Routes
 Route::apiResource('categories', \App\Http\Controllers\Api\CategoryController::class)->only(['index', 'show']);
+Route::get('/categories/{id}/books', [\App\Http\Controllers\Api\CategoryController::class, 'books']);
 Route::apiResource('authors', \App\Http\Controllers\Api\AuthorController::class)->only(['index', 'show']);
 Route::get('/countries', [\App\Http\Controllers\Api\CountryController::class, 'index']);
 Route::get('/countries/{id}', [\App\Http\Controllers\Api\CountryController::class, 'show']);
