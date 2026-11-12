@@ -25,7 +25,7 @@ class AuthorResource extends JsonResource
             'birth_year' => $this->birth_year,
             'life_status' => $this->life_status,
             'image_url' => $this->image_path ? asset($this->image_path) : null,
-            'country' => $this->whenLoaded('country', fn() => new CountryResource($this->country)),
+            'country' => $this->whenLoaded('country', fn() => $this->country ? new CountryResource($this->country) : null),
         ];
     }
 }
