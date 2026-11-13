@@ -13,6 +13,7 @@ class ProductionSeeder extends Seeder
             CountrySeeder::class,
             AdminAndAdSeeder::class,
             ArticleTypeSeeder::class,
+            ArticleSeeder::class,
         ]);
     }
 }

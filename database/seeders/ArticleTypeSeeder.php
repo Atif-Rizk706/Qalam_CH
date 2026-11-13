@@ -22,7 +22,7 @@ class ArticleTypeSeeder extends Seeder
             ArticleType::updateOrCreate(['slug' => $type['slug']], $type);
         }
 
-        $this->command->info('Article types seeded: ' . count($types));
+        $this->command?->info('Article types seeded: ' . count($types));
     }
 }
 

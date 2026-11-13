@@ -25,7 +25,10 @@ class AuthorResource extends JsonResource
             'birth_year' => $this->birth_year,
             'life_status' => $this->life_status,
             'image_url' => $this->image_path ? asset($this->image_path) : null,
-            'country' => $this->whenLoaded('country', fn() => $this->country ? new CountryResource($this->country) : null),
+            'country' => $this->whenLoaded('country', function () {
+                $country = $this->resource->getRelation('country');
+                return $country instanceof \App\Models\Country ? new CountryResource($country) : null;
+            }),
         ];
     }
 }

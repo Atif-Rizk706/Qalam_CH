@@ -17,6 +17,8 @@ class TestSeeder extends Seeder
         $this->call([
             CountrySeeder::class,
             AdminAndAdSeeder::class,
+            ArticleTypeSeeder::class,
+            ArticleSeeder::class,
         ]);
 
         // Seed Users

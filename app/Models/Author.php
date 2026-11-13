@@ -46,6 +46,19 @@ class Author extends Model
         return $this->belongsTo(Country::class, 'country_id');
     }
 
+    /**
+     * Resolve ambiguity between 'country' string column in authors table
+     * and 'country' BelongsTo relation to Country model.
+     */
+    public function getCountryAttribute($value)
+    {
+        if ($this->relationLoaded('country')) {
+            return $this->getRelation('country');
+        }
+
+        return $value;
+    }
+
     public function books()
     {
         return $this->hasMany(Book::class);
