@@ -344,6 +344,47 @@
                     "response": []
                 },
                 {
+                    "name": "Get Books by Author (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/authors/1/books?page=1&per_page=15",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "authors",
+                                "1",
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search within author books",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Get Latest Books",
                     "request": {
                         "method": "GET",
@@ -1043,6 +1084,42 @@
                             "response": []
                         }
                     ]
+                },
+                {
+                    "name": "Global Search (Books and Authors in 2 Lists)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/search?q=لويس",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "لويس",
+                                    "description": "Search keyword for books and authors by name"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "15",
+                                    "description": "Max items per list",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
                 }
             ]
         },

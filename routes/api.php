@@ -40,8 +40,12 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::apiResource('categories', \App\Http\Controllers\Api\CategoryController::class)->only(['index', 'show']);
 Route::get('/categories/{id}/books', [\App\Http\Controllers\Api\CategoryController::class, 'books']);
 Route::apiResource('authors', \App\Http\Controllers\Api\AuthorController::class)->only(['index', 'show']);
+Route::get('/authors/{id}/books', [\App\Http\Controllers\Api\AuthorController::class, 'books']);
 Route::get('/countries', [\App\Http\Controllers\Api\CountryController::class, 'index']);
 Route::get('/countries/{id}', [\App\Http\Controllers\Api\CountryController::class, 'show']);
+
+// Global Search (Books and Authors in 2 lists)
+Route::get('/search', [\App\Http\Controllers\Api\SearchController::class, 'search']);
 
 // Visitor Tracking & Analytics
 Route::post('/track-visit', [\App\Http\Controllers\Api\VisitorController::class, 'track']);

@@ -45,8 +45,21 @@ class BookController extends Controller
             });
         }
 
+        // Filter by Author (by ID, comma separated IDs, or Slug/Name)
         if ($request->filled('author_id')) {
-            $query->where('author_id', $request->author_id);
+            $authorIds = is_array($request->author_id)
+                ? $request->author_id
+                : explode(',', $request->author_id);
+            $query->whereIn('author_id', $authorIds);
+        } elseif ($request->filled('author')) {
+            $auth = $request->author;
+            $query->whereHas('author', function ($aq) use ($auth) {
+                if (is_numeric($auth)) {
+                    $aq->where('id', $auth);
+                } else {
+                    $aq->where('slug', $auth)->orWhere('name', 'like', "%{$auth}%");
+                }
+            });
         }
 
         $books = $query->paginate($perPage);
