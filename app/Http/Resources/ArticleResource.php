@@ -14,13 +14,10 @@ class ArticleResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'short_description' => $this->short_description,
-            'body' => $this->when(
-                $request->routeIs('articles.show') || $request->routeIs('admin.articles.show'),
-                $this->body
-            ),
-            'excerpt' => $this->excerpt,
+            'body' => $this->body,    // نص المقالة الكامل
+            'content' => $this->body,    // اسم مرادف بديل للـ Frontend
+            'excerpt' => $this->excerpt, // اقتباس أو مقتطف من المقالة
             'cover_image_url' => $this->formatUrl($this->cover_image_path),
-            'file_url' => $this->formatUrl($this->file_path),
             'read_time' => (int) $this->read_time,
             'views_count' => (int) $this->views_count,
             'is_published' => (bool) $this->is_published,

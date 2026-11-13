@@ -248,7 +248,7 @@
             "name": "Public API",
             "item": [
                 {
-                    "name": "Get Categories",
+                    "name": "Get Categories (with books count)",
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -260,6 +260,66 @@
                             "path": [
                                 "api",
                                 "categories"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Single Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/categories/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "categories",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Books by Category (Paginated)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/categories/1/books?page=1&per_page=15",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "categories",
+                                "1",
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search within category books by title or description",
+                                    "disabled": true
+                                }
                             ]
                         }
                     },
@@ -595,7 +655,7 @@
                     "response": []
                 },
                 {
-                    "name": "Get Single Book (Auto increments views)",
+                    "name": "Get Single Book (Auto increments views + related_books)",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -895,6 +955,88 @@
                                             "key": "limit",
                                             "value": "10"
                                         }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Settings (Phone, WhatsApp, Social Media)",
+                    "item": [
+                        {
+                            "name": "Get Public Settings (Map + List)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/settings",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "settings"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Public Settings by Group (e.g. contact, social)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/settings?group=contact",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "settings"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "group",
+                                            "value": "contact",
+                                            "description": "contact, social, general"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Get Single Setting by Key (e.g. whatsapp)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/settings/whatsapp",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "settings",
+                                        "whatsapp"
                                     ]
                                 }
                             },
@@ -2630,11 +2772,6 @@
                                             "key": "cover_image",
                                             "type": "file",
                                             "src": ""
-                                        },
-                                        {
-                                            "key": "file",
-                                            "type": "file",
-                                            "src": ""
                                         }
                                     ]
                                 },
@@ -2862,6 +2999,122 @@
                                         "articles",
                                         "1",
                                         "force"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Settings",
+                    "item": [
+                        {
+                            "name": "Get All Settings (Admin Grouped + Map)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminToken}}"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/admin/settings",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "admin",
+                                        "settings"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Bulk Update Settings (Phone, WhatsApp, Social Media, etc.)",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminToken}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"phone\": \"+201234567890\",\n    \"whatsapp\": \"+201234567890\",\n    \"email\": \"contact@qalam-library.com\",\n    \"facebook\": \"https:\\/\\/facebook.com\\/qalamlibrary\",\n    \"instagram\": \"https:\\/\\/instagram.com\\/qalamlibrary\",\n    \"youtube\": \"https:\\/\\/youtube.com\\/@qalamlibrary\",\n    \"twitter\": \"https:\\/\\/x.com\\/qalamlibrary\",\n    \"telegram\": \"https:\\/\\/t.me\\/qalamlibrary\",\n    \"address\": \"القاهرة، مصر\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/admin/settings",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "admin",
+                                        "settings"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update Single Setting (e.g. WhatsApp)",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{adminToken}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"value\": \"+201098765432\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/admin/settings/whatsapp",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "admin",
+                                        "settings",
+                                        "whatsapp"
                                     ]
                                 }
                             },

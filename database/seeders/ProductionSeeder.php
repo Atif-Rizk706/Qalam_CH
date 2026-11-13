@@ -14,6 +14,8 @@ class ProductionSeeder extends Seeder
             AdminAndAdSeeder::class,
             ArticleTypeSeeder::class,
             ArticleSeeder::class,
+            SettingSeeder::class,
+            VisitorSeeder::class,
         ]);
     }
 }

@@ -17,7 +17,6 @@ class Article extends Model
         'body',
         'excerpt',
         'cover_image_path',
-        'file_path',
         'read_time',
         'views_count',
         'is_published',

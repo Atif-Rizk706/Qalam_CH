@@ -19,6 +19,8 @@ class TestSeeder extends Seeder
             AdminAndAdSeeder::class,
             ArticleTypeSeeder::class,
             ArticleSeeder::class,
+            SettingSeeder::class,
+            VisitorSeeder::class,
         ]);
 
         // Seed Users

@@ -21,7 +21,8 @@ class ArticleController extends Controller
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(fn($q) => $q->where('title', 'like', "%{$term}%")
-                ->orWhere('short_description', 'like', "%{$term}%"));
+                ->orWhere('short_description', 'like', "%{$term}%")
+                ->orWhere('body', 'like', "%{$term}%"));
         }
 
         if ($request->filled('type_id')) {
@@ -63,7 +64,7 @@ class ArticleController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:articles,slug|max:255',
             'short_description' => 'nullable|string|max:500',
-            'body' => 'required|string',
+            'body' => 'required|string', // نص المقالة
             'excerpt' => 'nullable|string|max:1000',
             'author_id' => 'required|exists:authors,id',
             'type_id' => 'nullable|exists:article_types,id',
@@ -71,7 +72,6 @@ class ArticleController extends Controller
             'is_published' => 'nullable|boolean',
             'published_at' => 'nullable|date',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'file' => 'nullable|file|mimes:pdf,epub,doc,docx|max:51200',
         ]);
 
         // Auto-generate slug if not provided
@@ -82,12 +82,6 @@ class ArticleController extends Controller
             $validated['cover_image_path'] = $request->file('cover_image')->store('articles/covers', 'public');
         }
         unset($validated['cover_image']);
-
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $validated['file_path'] = $request->file('file')->store('articles/files', 'public');
-        }
-        unset($validated['file']);
 
         // Set published_at if publishing now
         if (!empty($validated['is_published']) && empty($validated['published_at'])) {
@@ -108,7 +102,7 @@ class ArticleController extends Controller
             'title' => 'sometimes|string|max:255',
             'slug' => 'sometimes|string|unique:articles,slug,' . $article->id . '|max:255',
             'short_description' => 'nullable|string|max:500',
-            'body' => 'sometimes|string',
+            'body' => 'sometimes|string', // تعديل نص المقالة
             'excerpt' => 'nullable|string|max:1000',
             'author_id' => 'sometimes|exists:authors,id',
             'type_id' => 'nullable|exists:article_types,id',
@@ -116,7 +110,6 @@ class ArticleController extends Controller
             'is_published' => 'nullable|boolean',
             'published_at' => 'nullable|date',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'file' => 'nullable|file|mimes:pdf,epub,doc,docx|max:51200',
         ]);
 
         // Handle cover image upload (replace old one)
@@ -127,15 +120,6 @@ class ArticleController extends Controller
             $validated['cover_image_path'] = $request->file('cover_image')->store('articles/covers', 'public');
         }
         unset($validated['cover_image']);
-
-        // Handle file upload (replace old one)
-        if ($request->hasFile('file')) {
-            if ($article->file_path) {
-                Storage::disk('public')->delete($article->file_path);
-            }
-            $validated['file_path'] = $request->file('file')->store('articles/files', 'public');
-        }
-        unset($validated['file']);
 
         // Set published_at if publishing for the first time
         if (!empty($validated['is_published']) && !$article->published_at) {
@@ -169,12 +153,9 @@ class ArticleController extends Controller
     {
         $article = Article::onlyTrashed()->findOrFail($id);
 
-        // Delete files from storage
+        // Delete cover image from storage
         if ($article->cover_image_path) {
             Storage::disk('public')->delete($article->cover_image_path);
-        }
-        if ($article->file_path) {
-            Storage::disk('public')->delete($article->file_path);
         }
 
         $article->forceDelete();
@@ -212,4 +193,3 @@ class ArticleController extends Controller
         return $this->successResponse(new ArticleResource($article), "Article {$status} successfully");
     }
 }
-

@@ -59,6 +59,10 @@ Route::post('/books/{id}/restore', [\App\Http\Controllers\Api\BookController::cl
 
 Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'store']);
 
+// Public Settings Routes (Phone, WhatsApp, Social Media, Email, About)
+Route::get('/settings', [\App\Http\Controllers\Api\SettingController::class, 'index']);
+Route::get('/settings/{key}', [\App\Http\Controllers\Api\SettingController::class, 'show']);
+
 // Public Advertisements Route
 Route::get('/advertisements', [\App\Http\Controllers\Api\AdvertisementController::class, 'index']);
 
@@ -114,6 +118,11 @@ Route::prefix('admin')->group(function () {
         Route::apiResource('articles', \App\Http\Controllers\Api\Admin\ArticleController::class)->names([
             'show' => 'admin.articles.show',
         ]);
+
+        // Settings Admin Routes (Update phone, WhatsApp, social media, etc.)
+        Route::get('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'index']);
+        Route::put('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
+        Route::patch('/settings/{key}', [\App\Http\Controllers\Api\Admin\SettingController::class, 'updateSingle']);
 
 
     });
