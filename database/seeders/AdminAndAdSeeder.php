@@ -11,10 +11,23 @@ class AdminAndAdSeeder extends Seeder
 {
     public function run(): void
     {
-        if (!Admin::where('username', 'admin')->exists()) {
-            Admin::create([
+        $existingAdmin = Admin::where('email', 'admin@admin.com')
+            ->orWhere('username', 'admin')
+            ->first();
+
+        if ($existingAdmin) {
+            $existingAdmin->update([
+                'name' => $existingAdmin->name ?? 'مدير النظام',
+                'email' => 'admin@admin.com',
                 'username' => 'admin',
-                'password' => Hash::make('password')
+                'password' => Hash::make('password'),
+            ]);
+        } else {
+            Admin::create([
+                'name' => 'مدير النظام',
+                'email' => 'admin@admin.com',
+                'username' => 'admin',
+                'password' => Hash::make('password'),
             ]);
         }
 

@@ -15,14 +15,26 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'email' => 'nullable|string',
+            'username' => 'nullable|string',
+            'login' => 'nullable|string',
             'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('username', $request->username)->first();
+        $loginIdentifier = $request->input('email') 
+            ?? $request->input('username') 
+            ?? $request->input('login');
+
+        if (!$loginIdentifier) {
+            return $this->errorResponse('البريد الإلكتروني أو اسم المستخدم مطلوب', 422);
+        }
+
+        $admin = Admin::where('email', $loginIdentifier)
+            ->orWhere('username', $loginIdentifier)
+            ->first();
 
         if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return $this->errorResponse('Invalid credentials', 401);
+            return $this->errorResponse('بيانات الدخول غير صحيحة', 401);
         }
 
         $token = $admin->createToken('admin-token', ['admin'])->plainTextToken;
