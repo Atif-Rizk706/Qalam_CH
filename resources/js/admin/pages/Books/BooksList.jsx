@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/client';
-import { 
-    BookOpen, 
-    Plus, 
-    Search, 
-    Star, 
-    Sparkles, 
-    Archive, 
-    RotateCcw, 
-    Edit, 
-    Trash2, 
+import {
+    BookOpen,
+    Plus,
+    Search,
+    Star,
+    Sparkles,
+    Archive,
+    RotateCcw,
+    Edit,
+    Trash2,
     X,
     Filter
 } from 'lucide-react';
@@ -162,9 +162,21 @@ export default function BooksList() {
         setModalError('');
 
         try {
+            // Generate a safe ASCII slug — avoids Arabic-character slug rejection
+            const generateSlug = (title) => {
+                const ts = Date.now();
+                const ascii = title
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '')   // remove non-ascii / non-word chars (strips Arabic)
+                    .trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                return ascii.length > 3 ? `${ascii}-${ts}` : `book-${ts}`;
+            };
+
             const data = new FormData();
             data.append('title', formData.title);
-            data.append('slug', formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-'));
+            data.append('slug', formData.slug || generateSlug(formData.title));
             data.append('description', formData.description || '');
             data.append('author_id', formData.author_id);
             data.append('category_id', formData.category_id);
@@ -181,19 +193,19 @@ export default function BooksList() {
             if (editingBook) {
                 // Laravel handles multipart PUT with _method POST
                 data.append('_method', 'PUT');
-                await api.post(`/admin/books/${editingBook.id}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post(`/admin/books/${editingBook.id}`, data);
             } else {
-                await api.post('/admin/books', data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post('/admin/books', data);
             }
 
             setIsModalOpen(false);
             fetchBooks();
         } catch (err) {
-            const msg = err.response?.data?.message || 'حدث خطأ أثناء حفظ الكتاب.';
+            let msg = err.response?.data?.message || 'حدث خطأ أثناء حفظ الكتاب.';
+            if (err.response?.data?.errors) {
+                const details = Object.values(err.response.data.errors).flat().join(' | ');
+                if (details) msg = `${msg} (${details})`;
+            }
             setModalError(msg);
         } finally {
             setSaving(false);

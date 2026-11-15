@@ -157,19 +157,20 @@ export default function ArticlesList() {
 
             if (editingArticle) {
                 data.append('_method', 'PUT');
-                await api.post(`/admin/articles/${editingArticle.id}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post(`/admin/articles/${editingArticle.id}`, data);
             } else {
-                await api.post('/admin/articles', data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await api.post('/admin/articles', data);
             }
 
             setIsModalOpen(false);
             fetchArticles();
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'فشل حفظ المقال');
+            let msg = err.response?.data?.message || 'فشل حفظ المقال';
+            if (err.response?.data?.errors) {
+                const details = Object.values(err.response.data.errors).flat().join(' | ');
+                if (details) msg = `${msg} (${details})`;
+            }
+            setErrorMsg(msg);
         } finally {
             setSaving(false);
         }

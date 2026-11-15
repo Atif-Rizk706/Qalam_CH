@@ -39,29 +39,31 @@ trait FileUpload
             return null;
         }
 
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $originalExt = $file->getClientOriginalExtension();
-        $zipFileName = time() . '_' . $originalName . '.zip';
-        $tempPath = sys_get_temp_dir() . '/' . uniqid('compressed_') . '.zip';
+        // Try zip compression only if ZipArchive extension is available
+        if (class_exists('ZipArchive')) {
+            try {
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $zipFileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $originalName) . '.zip';
+                $tempPath = sys_get_temp_dir() . '/' . uniqid('compressed_') . '.zip';
 
-        $zip = new ZipArchive();
-        if ($zip->open($tempPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-            $zip->addFile($file->getRealPath(), $file->getClientOriginalName());
-            $zip->close();
+                $zip = new ZipArchive();
+                if ($zip->open($tempPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+                    $zip->addFile($file->getRealPath(), $file->getClientOriginalName());
+                    $zip->close();
 
-            // Store the compressed zip file in Laravel Storage
-            $relativeZipPath = $folder . '/' . $zipFileName;
-            Storage::disk($disk)->put($relativeZipPath, file_get_contents($tempPath));
-
-            // Clean up temporary local zip file
-            if (file_exists($tempPath)) {
-                @unlink($tempPath);
+                    if (file_exists($tempPath)) {
+                        $relativeZipPath = $folder . '/' . $zipFileName;
+                        Storage::disk($disk)->put($relativeZipPath, file_get_contents($tempPath));
+                        @unlink($tempPath);
+                        return $relativeZipPath;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // If zip compression fails for any reason, cleanly fallback to normal upload
             }
-
-            return $relativeZipPath;
         }
 
-        // Fallback to uncompressed upload if zip compression fails
+        // Fallback to standard direct upload
         return $file->store($folder, $disk);
     }
 

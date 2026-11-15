@@ -89,7 +89,12 @@ export default function AdvertisementsList() {
             setIsModalOpen(false);
             fetchAds();
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'فشل حفظ الإعلان');
+            let msg = err.response?.data?.message || 'فشل حفظ الإعلان';
+            if (err.response?.data?.errors) {
+                const details = Object.values(err.response.data.errors).flat().join(' | ');
+                if (details) msg = `${msg} (${details})`;
+            }
+            setErrorMsg(msg);
         } finally {
             setSaving(false);
         }

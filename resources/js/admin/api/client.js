@@ -4,15 +4,19 @@ const api = axios.create({
     baseURL: '/api',
     headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor: attach Admin token
+// Request interceptor: attach Admin token & handle FormData boundary
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('admin_token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    }
+    // When sending FormData, delete Content-Type to let the browser automatically
+    // generate 'multipart/form-data; boundary=----WebKitFormBoundary...'
+    if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
     }
     return config;
 }, (error) => {

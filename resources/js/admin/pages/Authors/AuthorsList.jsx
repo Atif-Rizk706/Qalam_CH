@@ -122,7 +122,12 @@ export default function AuthorsList() {
             setIsModalOpen(false);
             fetchAuthors();
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'فشل حفظ المؤلف');
+            let msg = err.response?.data?.message || 'فشل حفظ المؤلف';
+            if (err.response?.data?.errors) {
+                const details = Object.values(err.response.data.errors).flat().join(' | ');
+                if (details) msg = `${msg} (${details})`;
+            }
+            setErrorMsg(msg);
         } finally {
             setSaving(false);
         }

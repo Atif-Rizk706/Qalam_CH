@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use Illuminate\Support\Str;
+
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Traits\FileUpload;
@@ -93,6 +95,12 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
+        // Auto-generate slug from title if not provided
+        if (empty($request->slug) && $request->filled('title')) {
+            $baseSlug = 'book-' . time() . '-' . \Str::random(6);
+            $request->merge(['slug' => $baseSlug]);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|unique:books,slug',
@@ -101,12 +109,12 @@ class BookController extends Controller
             'category_id' => 'required|exists:categories,id',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'cover_image_path' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,epub,doc,docx,txt|max:51200', // max 50MB
+            'file' => 'nullable|file|mimes:pdf,epub,doc,docx,txt|max:51200',
             'file_path' => 'nullable|string',
             'views_count' => 'integer',
             'is_book_of_the_day' => 'boolean',
             'is_suggested' => 'boolean',
-            'compress_file' => 'boolean', // Option to explicitly compress file
+            'compress_file' => 'boolean',
         ]);
 
         // Upload and compress book file if uploaded

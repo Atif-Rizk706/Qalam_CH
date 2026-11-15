@@ -103,7 +103,12 @@ export default function CategoriesList() {
             setIsModalOpen(false);
             fetchCategories(page);
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'فشل حفظ القسم.');
+            let msg = err.response?.data?.message || 'فشل حفظ القسم.';
+            if (err.response?.data?.errors) {
+                const details = Object.values(err.response.data.errors).flat().join(' | ');
+                if (details) msg = `${msg} (${details})`;
+            }
+            setErrorMsg(msg);
         } finally {
             setSaving(false);
         }
