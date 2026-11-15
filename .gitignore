@@ -1,6 +1,6 @@
 /vendor
 /node_modules
-/public/build
+# /public/build  ← DO NOT ignore build files (needed for shared hosting deployment)
 /public/hot
 /public/storage
 /storage/*.key

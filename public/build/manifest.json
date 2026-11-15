@@ -1,0 +1,32 @@
+{
+  "_index--2_MGzuq.js": {
+    "file": "assets/index--2_MGzuq.js",
+    "name": "index"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BceHVaoD.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/admin/main.jsx": {
+    "file": "assets/main-BAfzeZKA.js",
+    "name": "main",
+    "src": "resources/js/admin/main.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index--2_MGzuq.js"
+    ],
+    "css": [
+      "assets/app-BceHVaoD.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CqSBjU9n.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_index--2_MGzuq.js"
+    ]
+  }
+}
