@@ -117,21 +117,53 @@ class BookController extends Controller
             'compress_file' => 'boolean',
         ]);
 
-        // Upload and compress book file if uploaded
-        if ($request->hasFile('file')) {
-            if ($request->boolean('compress_file', true)) {
-                $validated['file_path'] = $this->uploadAndCompressFile($request->file('file'), 'books');
-            } else {
-                $validated['file_path'] = $this->uploadFile($request->file('file'), 'books');
+        $uploadedPaths = [];
+
+        try {
+            // تأكد من المساحة للملفين مع بعض قبل أي رفع
+            $incoming = 0;
+            if ($request->hasFile('file')) {
+                $incoming += $request->file('file')->getSize();
             }
-        }
+            if ($request->hasFile('cover_image')) {
+                $incoming += $request->file('cover_image')->getSize();
+            }
+            $this->ensureEnoughStorage($incoming);
 
-        // Upload cover image
-        if ($request->hasFile('cover_image')) {
-            $validated['cover_image_path'] = $this->uploadFile($request->file('cover_image'), 'covers');
-        }
+            // Upload book file
+            if ($request->hasFile('file')) {
+                $path = $request->boolean('compress_file', true)
+                    ? $this->uploadAndCompressFile($request->file('file'), 'books')
+                    : $this->uploadFile($request->file('file'), 'books');
 
-        $book = Book::create($validated);
+                $validated['file_path'] = $path;
+                $uploadedPaths[] = $path;
+            }
+
+            // Upload cover image
+            if ($request->hasFile('cover_image')) {
+                $path = $this->uploadFile($request->file('cover_image'), 'covers');
+
+                $validated['cover_image_path'] = $path;
+                $uploadedPaths[] = $path;
+            }
+
+            $book = Book::create($validated);
+        } catch (\RuntimeException $e) {
+            // مفيش حاجة اترفعت لسه في الحالة دي، بس نمسح احتياطي
+            foreach ($uploadedPaths as $p) {
+                $this->deleteFile($p);
+            }
+
+            return response()->json(['message' => $e->getMessage()], 507);
+        } catch (\Throwable $e) {
+            // أي خطأ تاني: امسح الملفات اللي اتحفظت عشان ماتتبقاش يتيمة
+            foreach ($uploadedPaths as $p) {
+                $this->deleteFile($p);
+            }
+
+            throw $e;
+        }
 
         return $this->successResponse(
             new BookResource($book),
@@ -160,30 +192,70 @@ class BookController extends Controller
             'compress_file' => 'boolean',
         ]);
 
-        // Handle book file update and compression
-        if ($request->hasFile('file')) {
-            if ($book->file_path) {
-                $this->deleteFile($book->file_path);
+        $newPaths = [];      // ملفات جديدة اترفعت (نمسحها لو حصل خطأ)
+        $oldPaths = [];      // ملفات قديمة (نمسحها بعد النجاح)
+
+        try {
+            // تأكد من المساحة للملفين مع بعض قبل أي رفع
+            $incoming = 0;
+            if ($request->hasFile('file')) {
+                $incoming += $request->file('file')->getSize();
             }
-            if ($request->boolean('compress_file', true)) {
-                $validated['file_path'] = $this->uploadAndCompressFile($request->file('file'), 'books');
-            } else {
-                $validated['file_path'] = $this->uploadFile($request->file('file'), 'books');
+            if ($request->hasFile('cover_image')) {
+                $incoming += $request->file('cover_image')->getSize();
             }
+            if ($incoming > 0) {
+                $this->ensureEnoughStorage($incoming);
+            }
+
+            // Book file
+            if ($request->hasFile('file')) {
+                $path = $request->boolean('compress_file', true)
+                    ? $this->uploadAndCompressFile($request->file('file'), 'books')
+                    : $this->uploadFile($request->file('file'), 'books');
+
+                $validated['file_path'] = $path;
+                $newPaths[] = $path;
+
+                if ($book->file_path) {
+                    $oldPaths[] = $book->file_path;
+                }
+            }
+
+            // Cover image
+            if ($request->hasFile('cover_image')) {
+                $path = $this->uploadFile($request->file('cover_image'), 'covers');
+
+                $validated['cover_image_path'] = $path;
+                $newPaths[] = $path;
+
+                if ($book->cover_image_path) {
+                    $oldPaths[] = $book->cover_image_path;
+                }
+            }
+
+            $book->update($validated);
+        } catch (\RuntimeException $e) {
+            foreach ($newPaths as $p) {
+                $this->deleteFile($p);
+            }
+
+            return response()->json(['message' => $e->getMessage()], 507);
+        } catch (\Throwable $e) {
+            foreach ($newPaths as $p) {
+                $this->deleteFile($p);
+            }
+
+            throw $e;
         }
 
-        // Handle cover image update
-        if ($request->hasFile('cover_image')) {
-            if ($book->cover_image_path) {
-                $this->deleteFile($book->cover_image_path);
-            }
-            $validated['cover_image_path'] = $this->uploadFile($request->file('cover_image'), 'covers');
+        // التحديث نجح: دلوقتي نمسح الملفات القديمة
+        foreach ($oldPaths as $p) {
+            $this->deleteFile($p);
         }
-
-        $book->update($validated);
 
         return $this->successResponse(
-            new BookResource($book),
+            new BookResource($book->fresh()),
             'Book updated successfully',
             200
         );

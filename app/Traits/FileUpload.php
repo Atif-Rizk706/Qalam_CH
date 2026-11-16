@@ -3,43 +3,73 @@
 namespace App\Traits;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 trait FileUpload
 {
     /**
-     * Upload a file directly.
-     *
-     * @param \Illuminate\Http\UploadedFile|null $file
-     * @param string $folder
-     * @param string $disk
-     * @return string|null
+     * الحد الأقصى للمساحة بالبايت (10 جيجا)
      */
-    public function uploadFile(?UploadedFile $file, string $folder = 'uploads', string $disk = 'public'): ?string
+    protected function maxStorageBytes(): int
     {
-        if ($file) {
-            return $file->store($folder, $disk);
-        }
-
-        return null;
+        return 10 * 1024 * 1024 * 1024;
     }
 
     /**
-     * Upload a file and compress it into a ZIP archive to reduce storage space.
-     *
-     * @param \Illuminate\Http\UploadedFile|null $file
-     * @param string $folder
-     * @param string $disk
-     * @return string|null
+     * حساب المساحة المستخدمة حاليا على الـ disk.
+     * بنخزن النتيجة في الكاش دقيقة عشان الحساب مايبقاش تقيل.
      */
+    public function usedStorageBytes(string $disk = 'public'): int
+    {
+        return Cache::remember("storage_used_{$disk}", 60, function () use ($disk) {
+            $size = 0;
+            foreach (Storage::disk($disk)->allFiles() as $path) {
+                $size += Storage::disk($disk)->size($path);
+            }
+            return $size;
+        });
+    }
+
+    /**
+     * التأكد إن في مساحة كافية، وإلا يرمي Exception.
+     */
+    protected function ensureEnoughStorage(int $incomingBytes, string $disk = 'public'): void
+    {
+        if ($this->usedStorageBytes($disk) + $incomingBytes > $this->maxStorageBytes()) {
+            throw new \RuntimeException('تم الوصول للحد الأقصى للمساحة المسموح بها (10 جيجا).');
+        }
+    }
+
+    protected function clearStorageCache(string $disk = 'public'): void
+    {
+        Cache::forget("storage_used_{$disk}");
+    }
+
+    public function uploadFile(?UploadedFile $file, string $folder = 'uploads', string $disk = 'public'): ?string
+    {
+        if (!$file) {
+            return null;
+        }
+
+        $this->ensureEnoughStorage($file->getSize(), $disk);
+
+        $path = $file->store($folder, $disk);
+        $this->clearStorageCache($disk);
+
+        return $path;
+    }
+
     public function uploadAndCompressFile(?UploadedFile $file, string $folder = 'books', string $disk = 'public'): ?string
     {
         if (!$file) {
             return null;
         }
 
-        // Try zip compression only if ZipArchive extension is available
+        // بنتأكد من المساحة بحجم الملف الأصلي (أسوأ حالة)
+        $this->ensureEnoughStorage($file->getSize(), $disk);
+
         if (class_exists('ZipArchive')) {
             try {
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
@@ -55,29 +85,27 @@ trait FileUpload
                         $relativeZipPath = $folder . '/' . $zipFileName;
                         Storage::disk($disk)->put($relativeZipPath, file_get_contents($tempPath));
                         @unlink($tempPath);
+                        $this->clearStorageCache($disk);
                         return $relativeZipPath;
                     }
                 }
             } catch (\Throwable $e) {
-                // If zip compression fails for any reason, cleanly fallback to normal upload
+                // لو الضغط فشل نكمل برفع عادي
             }
         }
 
-        // Fallback to standard direct upload
-        return $file->store($folder, $disk);
+        $path = $file->store($folder, $disk);
+        $this->clearStorageCache($disk);
+
+        return $path;
     }
 
-    /**
-     * Delete a file from storage.
-     *
-     * @param string|null $path
-     * @param string $disk
-     * @return bool
-     */
     public function deleteFile(?string $path, string $disk = 'public'): bool
     {
         if ($path && Storage::disk($disk)->exists($path)) {
-            return Storage::disk($disk)->delete($path);
+            $deleted = Storage::disk($disk)->delete($path);
+            $this->clearStorageCache($disk);
+            return $deleted;
         }
 
         return false;
