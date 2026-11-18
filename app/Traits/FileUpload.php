@@ -21,7 +21,7 @@ trait FileUpload
      * حساب المساحة المستخدمة حاليا على الـ disk.
      * بنخزن النتيجة في الكاش دقيقة عشان الحساب مايبقاش تقيل.
      */
-    public function usedStorageBytes(string $disk = 'public'): int
+    public function usedStorageBytes(string $disk = 'public_direct'): int
     {
         return Cache::remember("storage_used_{$disk}", 60, function () use ($disk) {
             $size = 0;
@@ -35,19 +35,19 @@ trait FileUpload
     /**
      * التأكد إن في مساحة كافية، وإلا يرمي Exception.
      */
-    protected function ensureEnoughStorage(int $incomingBytes, string $disk = 'public'): void
+    protected function ensureEnoughStorage(int $incomingBytes, string $disk = 'public_direct'): void
     {
         if ($this->usedStorageBytes($disk) + $incomingBytes > $this->maxStorageBytes()) {
             throw new \RuntimeException('تم الوصول للحد الأقصى للمساحة المسموح بها (10 جيجا).');
         }
     }
 
-    protected function clearStorageCache(string $disk = 'public'): void
+    protected function clearStorageCache(string $disk = 'public_direct'): void
     {
         Cache::forget("storage_used_{$disk}");
     }
 
-    public function uploadFile(?UploadedFile $file, string $folder = 'uploads', string $disk = 'public'): ?string
+    public function uploadFile(?UploadedFile $file, string $folder = 'uploads', string $disk = 'public_direct'): ?string
     {
         if (!$file) {
             return null;
@@ -61,7 +61,7 @@ trait FileUpload
         return $path;
     }
 
-    public function uploadAndCompressFile(?UploadedFile $file, string $folder = 'books', string $disk = 'public'): ?string
+    public function uploadAndCompressFile(?UploadedFile $file, string $folder = 'books', string $disk = 'public_direct'): ?string
     {
         if (!$file) {
             return null;
@@ -100,7 +100,7 @@ trait FileUpload
         return $path;
     }
 
-    public function deleteFile(?string $path, string $disk = 'public'): bool
+    public function deleteFile(?string $path, string $disk = 'public_direct'): bool
     {
         if ($path && Storage::disk($disk)->exists($path)) {
             $deleted = Storage::disk($disk)->delete($path);
