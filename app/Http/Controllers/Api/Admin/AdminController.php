@@ -21,7 +21,7 @@ class AdminController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%");
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -50,8 +50,13 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:admins,email',
-            'password' => 'required|string|min:8|confirmed',
+            'username' => 'nullable|string|max:255|unique:admins,username',
+            'password' => 'required|string|min:6',
         ]);
+
+        if (empty($validated['username'])) {
+            $validated['username'] = explode('@', $validated['email'])[0] . '_' . rand(100, 999);
+        }
 
         $validated['password'] = Hash::make($validated['password']);
 
@@ -67,7 +72,8 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:admins,email,' . $admin->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'username' => 'nullable|string|max:255|unique:admins,username,' . $admin->id,
+            'password' => 'nullable|string|min:6',
         ]);
 
         if (!empty($validated['password'])) {

@@ -130,11 +130,9 @@ class BookController extends Controller
             }
             $this->ensureEnoughStorage($incoming);
 
-            // Upload book file
+            // Upload book file directly without archiving/compressing
             if ($request->hasFile('file')) {
-                $path = $request->boolean('compress_file', true)
-                    ? $this->uploadAndCompressFile($request->file('file'), 'books')
-                    : $this->uploadFile($request->file('file'), 'books');
+                $path = $this->uploadFile($request->file('file'), 'books');
 
                 $validated['file_path'] = $path;
                 $uploadedPaths[] = $path;
@@ -167,7 +165,7 @@ class BookController extends Controller
 
         return $this->successResponse(
             new BookResource($book),
-            'Book created successfully with compressed file storage',
+            'Book created successfully',
             201
         );
     }
@@ -208,11 +206,9 @@ class BookController extends Controller
                 $this->ensureEnoughStorage($incoming);
             }
 
-            // Book file
+            // Book file (uploaded directly without archiving)
             if ($request->hasFile('file')) {
-                $path = $request->boolean('compress_file', true)
-                    ? $this->uploadAndCompressFile($request->file('file'), 'books')
-                    : $this->uploadFile($request->file('file'), 'books');
+                $path = $this->uploadFile($request->file('file'), 'books');
 
                 $validated['file_path'] = $path;
                 $newPaths[] = $path;
