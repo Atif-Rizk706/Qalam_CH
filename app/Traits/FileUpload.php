@@ -52,7 +52,7 @@ trait FileUpload
         if (!$file) {
             return null;
         }
-
+        //
         $this->ensureEnoughStorage($file->getSize(), $disk);
 
         $path = $file->store($folder, $disk);
