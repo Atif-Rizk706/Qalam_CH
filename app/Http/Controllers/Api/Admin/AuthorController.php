@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Author;
 use App\Traits\ApiResponse;
+use App\Traits\FileUpload;
 use App\Http\Resources\AuthorResource;
 use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, FileUpload;
 
     public function index(Request $request)
     {
@@ -57,16 +58,23 @@ class AuthorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:authors,slug',
-            'country' => 'nullable|string',
-            'country_id' => 'nullable|exists:countries,id',
-            'bio' => 'nullable|string',
-            'image_path' => 'nullable|string',
-            'is_contemporary' => 'nullable|boolean',
-            'death_year' => 'nullable|string|max:50',
-            'birth_year' => 'nullable|string|max:50',
+            'name'           => 'required|string|max:255',
+            'slug'           => 'required|string|unique:authors,slug',
+            'country'        => 'nullable|string',
+            'country_id'     => 'nullable|exists:countries,id',
+            'bio'            => 'nullable|string',
+            'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image_path'     => 'nullable|string',
+            'is_contemporary'=> 'nullable|boolean',
+            'death_year'     => 'nullable|string|max:50',
+            'birth_year'     => 'nullable|string|max:50',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = $this->uploadFile($request->file('image'), 'images');
+        }
+
+        unset($validated['image']);
 
         $author = Author::create($validated);
         $author->load('country');
@@ -79,16 +87,27 @@ class AuthorController extends Controller
         $author = Author::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|unique:authors,slug,' . $author->id,
-            'country' => 'nullable|string',
-            'country_id' => 'nullable|exists:countries,id',
-            'bio' => 'nullable|string',
-            'image_path' => 'nullable|string',
-            'is_contemporary' => 'nullable|boolean',
-            'death_year' => 'nullable|string|max:50',
-            'birth_year' => 'nullable|string|max:50',
+            'name'           => 'sometimes|string|max:255',
+            'slug'           => 'sometimes|string|unique:authors,slug,' . $author->id,
+            'country'        => 'nullable|string',
+            'country_id'     => 'nullable|exists:countries,id',
+            'bio'            => 'nullable|string',
+            'image'          => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image_path'     => 'nullable|string',
+            'is_contemporary'=> 'nullable|boolean',
+            'death_year'     => 'nullable|string|max:50',
+            'birth_year'     => 'nullable|string|max:50',
         ]);
+
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة إن وجدت
+            if ($author->image_path) {
+                $this->deleteFile($author->image_path);
+            }
+            $validated['image_path'] = $this->uploadFile($request->file('image'), 'images');
+        }
+
+        unset($validated['image']);
 
         $author->update($validated);
         $author->load('country');

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/client';
-import { Users, Plus, Search, Edit, Trash2, X, Globe, Calendar } from 'lucide-react';
+import { Users, Plus, Search, Edit, Trash2, X, Globe, Calendar, ImageIcon } from 'lucide-react';
 
 export default function AuthorsList() {
     const [authors, setAuthors] = useState([]);
@@ -22,6 +22,9 @@ export default function AuthorsList() {
     });
     const [saving, setSaving] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const imageInputRef = useRef(null);
 
     const fetchAuthors = async () => {
         setLoading(true);
@@ -73,6 +76,8 @@ export default function AuthorsList() {
             birth_year: '',
             death_year: '',
         });
+        setImageFile(null);
+        setImagePreview(null);
         setErrorMsg('');
         setIsModalOpen(true);
     };
@@ -88,6 +93,8 @@ export default function AuthorsList() {
             birth_year: a.birth_year || '',
             death_year: a.death_year || '',
         });
+        setImageFile(null);
+        setImagePreview(a.image_url || null);
         setErrorMsg('');
         setIsModalOpen(true);
     };
@@ -108,15 +115,21 @@ export default function AuthorsList() {
         setErrorMsg('');
 
         try {
-            const payload = {
-                ...formData,
-                slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
-            };
+            const fd = new FormData();
+            fd.append('name', formData.name);
+            fd.append('slug', formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'));
+            if (formData.country_id) fd.append('country_id', formData.country_id);
+            if (formData.bio) fd.append('bio', formData.bio);
+            fd.append('is_contemporary', formData.is_contemporary ? '1' : '0');
+            if (formData.birth_year) fd.append('birth_year', formData.birth_year);
+            if (formData.death_year) fd.append('death_year', formData.death_year);
+            if (imageFile) fd.append('image', imageFile);
 
             if (editingAuthor) {
-                await api.put(`/admin/authors/${editingAuthor.id}`, payload);
+                fd.append('_method', 'PUT');
+                await api.post(`/admin/authors/${editingAuthor.id}`, fd);
             } else {
-                await api.post('/admin/authors', payload);
+                await api.post('/admin/authors', fd);
             }
 
             setIsModalOpen(false);
@@ -189,6 +202,7 @@ export default function AuthorsList() {
                     <table className="data-table">
                         <thead>
                             <tr>
+                                <th>الصورة</th>
                                 <th>اسم المؤلف</th>
                                 <th>الدولة</th>
                                 <th>الحالة التاريخية</th>
@@ -200,19 +214,32 @@ export default function AuthorsList() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
                                         جاري تحميل المؤلفين...
                                     </td>
                                 </tr>
                             ) : authors.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
                                         لا توجد بيانات مطابقة.
                                     </td>
                                 </tr>
                             ) : (
                                 authors.map((a) => (
                                     <tr key={a.id}>
+                                        <td>
+                                            {a.image_url ? (
+                                                <img
+                                                    src={a.image_url}
+                                                    alt={a.name}
+                                                    style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #E2E8F0' }}
+                                                />
+                                            ) : (
+                                                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #E2E8F0' }}>
+                                                    <ImageIcon size={18} color="#94A3B8" />
+                                                </div>
+                                            )}
+                                        </td>
                                         <td style={{ fontWeight: '700' }}>
                                             <div style={{ color: '#0F172A', fontSize: '14.5px' }}>{a.name}</div>
                                             <div style={{ fontSize: '11.5px', color: '#94A3B8' }}>{a.slug}</div>
@@ -378,6 +405,64 @@ export default function AuthorsList() {
                                     value={formData.bio}
                                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                 />
+                            </div>
+
+                            {/* Image Upload */}
+                            <div className="form-group">
+                                <label className="form-label">صورة المؤلف (اختياري)</label>
+                                <div
+                                    onClick={() => imageInputRef.current?.click()}
+                                    style={{
+                                        border: '2px dashed #CBD5E1',
+                                        borderRadius: '10px',
+                                        padding: '16px',
+                                        textAlign: 'center',
+                                        cursor: 'pointer',
+                                        background: '#F8FAFC',
+                                        transition: 'border-color 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#6366F1'}
+                                    onMouseLeave={(e) => e.currentTarget.style.borderColor = '#CBD5E1'}
+                                >
+                                    {imagePreview ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                            <img
+                                                src={imagePreview}
+                                                alt="preview"
+                                                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E2E8F0' }}
+                                            />
+                                            <span style={{ fontSize: '12px', color: '#6366F1' }}>اضغط لتغيير الصورة</span>
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#94A3B8' }}>
+                                            <ImageIcon size={32} />
+                                            <span style={{ fontSize: '13px' }}>اضغط لاختيار صورة</span>
+                                            <span style={{ fontSize: '11px' }}>PNG, JPG, WEBP — حتى 5MB</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <input
+                                    ref={imageInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/jpg"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setImageFile(file);
+                                            setImagePreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                />
+                                {imagePreview && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setImageFile(null); setImagePreview(null); if (imageInputRef.current) imageInputRef.current.value = ''; }}
+                                        style={{ marginTop: '8px', background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '12px' }}
+                                    >
+                                        ✕ إزالة الصورة
+                                    </button>
+                                )}
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>
