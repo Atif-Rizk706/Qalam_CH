@@ -106,6 +106,50 @@ class SettingSeeder extends Seeder
                 'group'        => 'general',
                 'type'         => 'text',
             ],
+
+            // Hero / Landing Section settings
+            [
+                'key'          => 'title',
+                'value'        => 'حيث تلتقي الكلمة العميقة بـ أقلام مسيحية أصيلة',
+                'display_name' => 'عنوان الواجهة الرئيسي (Title)',
+                'group'        => 'hero',
+                'type'         => 'text',
+            ],
+            [
+                'key'          => 'hero_title',
+                'value'        => 'حيث تلتقي الكلمة العميقة بـ أقلام مسيحية أصيلة',
+                'display_name' => 'عنوان الواجهة (Hero Title)',
+                'group'        => 'hero',
+                'type'         => 'text',
+            ],
+            [
+                'key'          => 'title_descr',
+                'value'        => 'تهدف منصة قَلَم إلى تشجيع الكتّاب والمفكرين وإثراء مكتبتنا العربية بمؤلفات جديدة في العلوم الروحية، واللاهوتية، والتاريخ الكنسي، وتوفيرها للقراءة المجانية المباشرة بكل يسر وهدوء.',
+                'display_name' => 'وصف عنوان الواجهة (Title Description)',
+                'group'        => 'hero',
+                'type'         => 'textarea',
+            ],
+            [
+                'key'          => 'hero_description',
+                'value'        => 'تهدف منصة قَلَم إلى تشجيع الكتّاب والمفكرين وإثراء مكتبتنا العربية بمؤلفات جديدة في العلوم الروحية، واللاهوتية، والتاريخ الكنسي، وتوفيرها للقراءة المجانية المباشرة بكل يسر وهدوء.',
+                'display_name' => 'وصف الواجهة (Hero Description)',
+                'group'        => 'hero',
+                'type'         => 'textarea',
+            ],
+            [
+                'key'          => 'hero_badge',
+                'value'        => 'منصة النشر والقراءة المسيحية',
+                'display_name' => 'شارة الهيدر (Hero Badge)',
+                'group'        => 'hero',
+                'type'         => 'text',
+            ],
+            [
+                'key'          => 'hero_image',
+                'value'        => null,
+                'display_name' => 'صورة الواجهة الرئيسية (Hero Image)',
+                'group'        => 'hero',
+                'type'         => 'image',
+            ],
         ];
 
         foreach ($settings as $setting) {

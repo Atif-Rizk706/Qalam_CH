@@ -1,19 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../../api/client';
-import { Settings, Save, Phone, Mail, MapPin, MessageSquare, Check, Share2, Info } from 'lucide-react';
+import { Settings, Save, Phone, Mail, MapPin, MessageSquare, Check, Share2, Info, Image as ImageIcon, Sparkles, Trash2 } from 'lucide-react';
 
 export default function SettingsPage() {
     const [settingsMap, setSettingsMap] = useState({
+        // Hero / Landing section
+        title: '',
+        title_descr: '',
+        hero_badge: '',
+        hero_image: '',
+        // Contact
         phone: '',
         whatsapp: '',
         email: '',
         address: '',
+        // Social
         facebook: '',
         instagram: '',
         youtube: '',
         twitter: '',
         telegram: '',
         tiktok: '',
+        // General
         site_name: '',
         about_app: '',
         copyright: '',
@@ -22,12 +30,21 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [savedSuccess, setSavedSuccess] = useState(false);
 
+    // Hero image upload & preview states
+    const [heroImageFile, setHeroImageFile] = useState(null);
+    const [heroImagePreview, setHeroImagePreview] = useState(null);
+    const [removeHeroImage, setRemoveHeroImage] = useState(false);
+    const heroImageInputRef = useRef(null);
+
     const fetchSettings = async () => {
         setLoading(true);
         try {
             const res = await api.get('/admin/settings');
             const map = res.data.data.map || {};
             setSettingsMap((prev) => ({ ...prev, ...map }));
+            if (map.hero_image) {
+                setHeroImagePreview(map.hero_image);
+            }
         } catch (err) {
             console.error('Error fetching settings:', err);
         } finally {
@@ -43,13 +60,60 @@ export default function SettingsPage() {
         setSettingsMap((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleHeroImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setHeroImageFile(file);
+            setHeroImagePreview(URL.createObjectURL(file));
+            setRemoveHeroImage(false);
+        }
+    };
+
+    const handleRemoveHeroImage = () => {
+        setHeroImageFile(null);
+        setHeroImagePreview(null);
+        setRemoveHeroImage(true);
+        if (heroImageInputRef.current) {
+            heroImageInputRef.current.value = '';
+        }
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
         setSaving(true);
         setSavedSuccess(false);
 
         try {
-            await api.put('/admin/settings', settingsMap);
+            const fd = new FormData();
+            fd.append('_method', 'PUT');
+
+            // Append all settingsMap keys
+            Object.keys(settingsMap).forEach((key) => {
+                if (key !== 'hero_image') {
+                    fd.append(key, settingsMap[key] ?? '');
+                }
+            });
+
+            // Append hero_image file if new file was selected
+            if (heroImageFile) {
+                fd.append('hero_image', heroImageFile);
+            }
+
+            if (removeHeroImage) {
+                fd.append('remove_hero_image', '1');
+            }
+
+            const res = await api.post('/admin/settings', fd);
+            const updatedMap = res.data.data.map || {};
+            setSettingsMap((prev) => ({ ...prev, ...updatedMap }));
+            if (updatedMap.hero_image) {
+                setHeroImagePreview(updatedMap.hero_image);
+            } else if (removeHeroImage) {
+                setHeroImagePreview(null);
+            }
+            setHeroImageFile(null);
+            setRemoveHeroImage(false);
+
             setSavedSuccess(true);
             setTimeout(() => setSavedSuccess(false), 4000);
         } catch (err) {
@@ -72,7 +136,7 @@ export default function SettingsPage() {
                         إعدادات النظام والمكتبة ⚙️
                     </h2>
                     <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-                        تعديل أرقام التواصل، روابط السوشيال ميديا، وبيانات المكتبة المتاحة للجمهور.
+                        التحكم في واجهة الموقع الرئيسية (Hero Section)، بيانات التواصل، السوشيال ميديا، وبيانات المكتبة.
                     </p>
                 </div>
                 <button onClick={handleSave} disabled={saving} className="btn btn-primary" style={{ padding: '10px 20px' }}>
@@ -101,6 +165,173 @@ export default function SettingsPage() {
             )}
 
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* 0. Hero / Landing Section Card */}
+                <div className="card" style={{ borderTop: '4px solid #C5A869' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', paddingBottom: '12px', borderBottom: '1px solid #E2E8F0', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#FDF8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Sparkles size={18} color="#C5A869" />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: '#0F172A' }}>
+                                    واجهة الموقع الرئيسية (Hero Section)
+                                </h3>
+                                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                                    التحكم في عنوان الواجهة، الوصف الترويجي، الشارة، والصورة الترويجية المعروضة لزوار الموقع
+                                </p>
+                            </div>
+                        </div>
+                        <span className="badge badge-primary" style={{ background: '#FDF8F0', color: '#927028', border: '1px solid #F3E8D0', fontSize: '11.5px', padding: '4px 10px' }}>
+                            الصفحة الرئيسية للموقع
+                        </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px' }}>
+                        {/* Text fields */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    شارة الهيدر (Hero Badge)
+                                    <span style={{ fontSize: '11px', color: '#94A3B8', marginRight: '6px' }}>(الشارة الصغيرة فوق العنوان)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="مثال: منصة النشر والقراءة المسيحية"
+                                    value={settingsMap.hero_badge || ''}
+                                    onChange={(e) => handleChange('hero_badge', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label" style={{ fontWeight: '700' }}>
+                                    عنوان الواجهة الرئيسي (title) *
+                                    <span style={{ fontSize: '11px', color: '#94A3B8', marginRight: '6px' }}>(العنوان الأكبر في الصفحة الرئيسية)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    style={{ fontSize: '15px', fontWeight: '700' }}
+                                    placeholder="مثال: حيث تلتقي الكلمة العميقة بـ أقلام مسيحية أصيلة"
+                                    value={settingsMap.title || ''}
+                                    onChange={(e) => handleChange('title', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">
+                                    وصف عنوان الواجهة (title_descr) *
+                                    <span style={{ fontSize: '11px', color: '#94A3B8', marginRight: '6px' }}>(النص التوضيحي أسفل العنوان)</span>
+                                </label>
+                                <textarea
+                                    className="form-textarea"
+                                    rows="4"
+                                    placeholder="مثال: تهدف منصة قَلَم إلى تشجيع الكتّاب والمفكرين وإثراء مكتبتنا العربية بمؤلفات جديدة في العلوم الروحية..."
+                                    value={settingsMap.title_descr || ''}
+                                    onChange={(e) => handleChange('title_descr', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Image field */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <label className="form-label" style={{ fontWeight: '700' }}>
+                                صورة الواجهة الرئيسية (Hero Image)
+                            </label>
+
+                            <div
+                                onClick={() => heroImageInputRef.current?.click()}
+                                style={{
+                                    border: '2px dashed #CBD5E1',
+                                    borderRadius: '12px',
+                                    padding: '16px',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    background: '#F8FAFC',
+                                    minHeight: '200px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#C5A869'}
+                                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#CBD5E1'}
+                            >
+                                {heroImagePreview ? (
+                                    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            maxHeight: '190px',
+                                            borderRadius: '10px',
+                                            overflow: 'hidden',
+                                            boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+                                            border: '2px solid #E2E8F0',
+                                        }}>
+                                            <img
+                                                src={heroImagePreview}
+                                                alt="Hero Preview"
+                                                style={{ width: '100%', height: '170px', objectFit: 'cover', display: 'block' }}
+                                            />
+                                        </div>
+                                        <span style={{ fontSize: '12px', color: '#927028', fontWeight: '600' }}>
+                                            اضغط لتغيير الصورة
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', color: '#94A3B8' }}>
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <ImageIcon size={24} color="#64748B" />
+                                        </div>
+                                        <div style={{ fontWeight: '600', color: '#334155', fontSize: '13px' }}>
+                                            اضغط لاختيار صورة الواجهة
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                                            PNG, JPG, WEBP — يفضل صورة أفقية بدقة عالية
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <input
+                                ref={heroImageInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/jpg"
+                                style={{ display: 'none' }}
+                                onChange={handleHeroImageChange}
+                            />
+
+                            {heroImagePreview && (
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveHeroImage}
+                                    style={{
+                                        background: '#FEF2F2',
+                                        border: '1px solid #FECACA',
+                                        color: '#DC2626',
+                                        borderRadius: '8px',
+                                        padding: '7px 12px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '6px',
+                                        marginTop: '4px',
+                                    }}
+                                >
+                                    <Trash2 size={13} />
+                                    <span>إزالة الصورة الحالية</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
                 {/* 1. Contact Info Card */}
                 <div className="card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '12px', borderBottom: '1px solid #E2E8F0' }}>
@@ -117,7 +348,7 @@ export default function SettingsPage() {
                                 type="text"
                                 className="form-input"
                                 placeholder="+201234567890"
-                                value={settingsMap.phone}
+                                value={settingsMap.phone || ''}
                                 onChange={(e) => handleChange('phone', e.target.value)}
                             />
                         </div>
@@ -128,7 +359,7 @@ export default function SettingsPage() {
                                 type="text"
                                 className="form-input"
                                 placeholder="+201234567890"
-                                value={settingsMap.whatsapp}
+                                value={settingsMap.whatsapp || ''}
                                 onChange={(e) => handleChange('whatsapp', e.target.value)}
                             />
                         </div>
@@ -139,7 +370,7 @@ export default function SettingsPage() {
                                 type="email"
                                 className="form-input"
                                 placeholder="contact@qalam-library.com"
-                                value={settingsMap.email}
+                                value={settingsMap.email || ''}
                                 onChange={(e) => handleChange('email', e.target.value)}
                             />
                         </div>
@@ -150,7 +381,7 @@ export default function SettingsPage() {
                                 type="text"
                                 className="form-input"
                                 placeholder="القاهرة، مصر"
-                                value={settingsMap.address}
+                                value={settingsMap.address || ''}
                                 onChange={(e) => handleChange('address', e.target.value)}
                             />
                         </div>
@@ -173,7 +404,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://facebook.com/..."
-                                value={settingsMap.facebook}
+                                value={settingsMap.facebook || ''}
                                 onChange={(e) => handleChange('facebook', e.target.value)}
                             />
                         </div>
@@ -184,7 +415,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://instagram.com/..."
-                                value={settingsMap.instagram}
+                                value={settingsMap.instagram || ''}
                                 onChange={(e) => handleChange('instagram', e.target.value)}
                             />
                         </div>
@@ -195,7 +426,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://youtube.com/@..."
-                                value={settingsMap.youtube}
+                                value={settingsMap.youtube || ''}
                                 onChange={(e) => handleChange('youtube', e.target.value)}
                             />
                         </div>
@@ -206,7 +437,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://x.com/..."
-                                value={settingsMap.twitter}
+                                value={settingsMap.twitter || ''}
                                 onChange={(e) => handleChange('twitter', e.target.value)}
                             />
                         </div>
@@ -217,7 +448,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://t.me/..."
-                                value={settingsMap.telegram}
+                                value={settingsMap.telegram || ''}
                                 onChange={(e) => handleChange('telegram', e.target.value)}
                             />
                         </div>
@@ -228,7 +459,7 @@ export default function SettingsPage() {
                                 type="url"
                                 className="form-input"
                                 placeholder="https://tiktok.com/@..."
-                                value={settingsMap.tiktok}
+                                value={settingsMap.tiktok || ''}
                                 onChange={(e) => handleChange('tiktok', e.target.value)}
                             />
                         </div>
@@ -250,7 +481,7 @@ export default function SettingsPage() {
                             <input
                                 type="text"
                                 className="form-input"
-                                value={settingsMap.site_name}
+                                value={settingsMap.site_name || ''}
                                 onChange={(e) => handleChange('site_name', e.target.value)}
                             />
                         </div>
@@ -260,7 +491,7 @@ export default function SettingsPage() {
                             <input
                                 type="text"
                                 className="form-input"
-                                value={settingsMap.copyright}
+                                value={settingsMap.copyright || ''}
                                 onChange={(e) => handleChange('copyright', e.target.value)}
                             />
                         </div>
@@ -271,7 +502,7 @@ export default function SettingsPage() {
                         <textarea
                             className="form-textarea"
                             rows="4"
-                            value={settingsMap.about_app}
+                            value={settingsMap.about_app || ''}
                             onChange={(e) => handleChange('about_app', e.target.value)}
                         />
                     </div>

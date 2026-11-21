@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use App\Traits\ApiResponse;
+use App\Traits\FileUpload;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, FileUpload;
 
     /**
      * Get public settings.
@@ -27,7 +28,18 @@ class SettingController extends Controller
         $settings = $query->get();
 
         // Convert to key-value dictionary for easy access in frontend:
-        $map = $settings->pluck('value', 'key');
+        $map = [];
+        foreach ($settings as $setting) {
+            $val = $setting->value;
+            if ($setting->type === 'image' || in_array($setting->key, ['hero_image', 'logo', 'favicon'])) {
+                $val = $this->formatUrl($val);
+            }
+            $map[$setting->key] = $val;
+        }
+
+        if (isset($map['hero_image'])) {
+            $map['hero_image_url'] = $map['hero_image'];
+        }
 
         return $this->successResponse([
             'map'      => $map,

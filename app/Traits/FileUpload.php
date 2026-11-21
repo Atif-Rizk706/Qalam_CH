@@ -110,4 +110,28 @@ trait FileUpload
 
         return false;
     }
+
+    /**
+     * Format a stored file path to an absolute public URL.
+     */
+    public function formatUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        if (file_exists(public_path($path))) {
+            return asset($path);
+        }
+
+        if (str_starts_with($path, 'storage/')) {
+            return asset($path);
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
+    }
 }
