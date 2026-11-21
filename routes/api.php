@@ -63,8 +63,10 @@ Route::post('/books/{id}/restore', [\App\Http\Controllers\Api\BookController::cl
 
 Route::post('/contact', [\App\Http\Controllers\Api\ContactController::class, 'store']);
 
-// Public Settings Routes (Phone, WhatsApp, Social Media, Email, About)
+// Public Settings Routes (Hero, Contact, Social Media, Email, About)
 Route::get('/settings', [\App\Http\Controllers\Api\SettingController::class, 'index']);
+Route::get('/settings/hero', [\App\Http\Controllers\Api\SettingController::class, 'hero']);
+Route::get('/settings/group/{group}', [\App\Http\Controllers\Api\SettingController::class, 'getByGroup']);
 Route::get('/settings/{key}', [\App\Http\Controllers\Api\SettingController::class, 'show']);
 
 // Public Advertisements Route
@@ -123,8 +125,10 @@ Route::prefix('admin')->group(function () {
             'show' => 'admin.articles.show',
         ]);
 
-        // Settings Admin Routes (Update phone, WhatsApp, social media, etc.)
+        // Settings Admin Routes (Update phone, WhatsApp, social media, hero section, etc.)
         Route::get('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'index']);
+        Route::get('/settings/hero', [\App\Http\Controllers\Api\Admin\SettingController::class, 'hero']);
+        Route::get('/settings/group/{group}', [\App\Http\Controllers\Api\Admin\SettingController::class, 'getByGroup']);
         Route::put('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
         Route::post('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
         Route::patch('/settings/{key}', [\App\Http\Controllers\Api\Admin\SettingController::class, 'updateSingle']);

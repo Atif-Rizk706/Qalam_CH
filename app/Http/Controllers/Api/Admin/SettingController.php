@@ -177,6 +177,43 @@ class SettingController extends Controller
     }
 
     /**
+     * Get settings specifically for the hero / landing section.
+     */
+    public function hero()
+    {
+        return $this->getByGroup('hero');
+    }
+
+    /**
+     * Get settings by group (e.g. hero, contact, social, general).
+     */
+    public function getByGroup(string $group)
+    {
+        $settings = Setting::where('group', $group)->get();
+
+        $map = [];
+        foreach ($settings as $setting) {
+            $val = $setting->value;
+            if ($setting->type === 'image' || in_array($setting->key, ['hero_image', 'logo', 'favicon'])) {
+                $val = $this->formatUrl($val);
+            }
+            $map[$setting->key] = $val;
+        }
+
+        if (isset($map['hero_image'])) {
+            $map['hero_image_url'] = $map['hero_image'];
+        }
+
+        $response = array_merge($map, [
+            'group'    => $group,
+            'map'      => $map,
+            'settings' => SettingResource::collection($settings),
+        ]);
+
+        return $this->successResponse($response, ucfirst($group) . ' settings retrieved successfully.');
+    }
+
+    /**
      * Update a single setting by key.
      */
     public function updateSingle(Request $request, string $key)

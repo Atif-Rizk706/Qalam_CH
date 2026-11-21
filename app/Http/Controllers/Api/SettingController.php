@@ -48,16 +48,63 @@ class SettingController extends Controller
     }
 
     /**
-     * Get a single setting by key.
+     * Get settings specifically for the hero / landing section.
+     */
+    public function hero()
+    {
+        return $this->getByGroup('hero');
+    }
+
+    /**
+     * Get settings by group (e.g. hero, contact, social, general).
+     */
+    public function getByGroup(string $group)
+    {
+        $settings = Setting::where('group', $group)->get();
+
+        $map = [];
+        foreach ($settings as $setting) {
+            $val = $setting->value;
+            if ($setting->type === 'image' || in_array($setting->key, ['hero_image', 'logo', 'favicon'])) {
+                $val = $this->formatUrl($val);
+            }
+            $map[$setting->key] = $val;
+        }
+
+        if (isset($map['hero_image'])) {
+            $map['hero_image_url'] = $map['hero_image'];
+        }
+
+        // Return flat keys directly as well as map and settings
+        $response = array_merge($map, [
+            'group'    => $group,
+            'map'      => $map,
+            'settings' => SettingResource::collection($settings),
+        ]);
+
+        return $this->successResponse($response, ucfirst($group) . ' settings retrieved successfully.');
+    }
+
+    /**
+     * Get a single setting by key (or fallback to group if key matches a group name).
      */
     public function show(string $key)
     {
-        $setting = Setting::where('key', $key)->firstOrFail();
+        $setting = Setting::where('key', $key)->first();
 
-        return $this->successResponse(
-            new SettingResource($setting),
-            'Setting retrieved successfully.'
-        );
+        if ($setting) {
+            return $this->successResponse(
+                new SettingResource($setting),
+                'Setting retrieved successfully.'
+            );
+        }
+
+        // Check if $key matches a group (e.g. /api/settings/hero)
+        if (Setting::where('group', $key)->exists()) {
+            return $this->getByGroup($key);
+        }
+
+        abort(404, "Setting or group '{$key}' not found.");
     }
 }
 
