@@ -133,6 +133,6 @@ Route::prefix('admin')->group(function () {
         Route::post('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
         Route::patch('/settings/{key}', [\App\Http\Controllers\Api\Admin\SettingController::class, 'updateSingle']);
 
-
+        //
     });
 });
