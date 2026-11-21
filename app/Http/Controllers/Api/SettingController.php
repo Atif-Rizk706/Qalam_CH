@@ -42,7 +42,7 @@ class SettingController extends Controller
         }
 
         return $this->successResponse([
-            'map'      => $map,
+            'map' => $map,
             'settings' => SettingResource::collection($settings),
         ], 'Settings retrieved successfully.');
     }

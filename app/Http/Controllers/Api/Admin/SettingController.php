@@ -38,8 +38,8 @@ class SettingController extends Controller
         }
 
         return $this->successResponse([
-            'grouped'  => $grouped,
-            'map'      => $map,
+            'grouped' => $grouped,
+            'map' => $map,
             'settings' => SettingResource::collection($settings),
         ], 'Settings retrieved successfully.');
     }
@@ -64,10 +64,10 @@ class SettingController extends Controller
             Setting::updateOrCreate(
                 ['key' => 'hero_image'],
                 [
-                    'value'        => $path,
+                    'value' => $path,
                     'display_name' => 'صورة الواجهة الرئيسية (Hero Image)',
-                    'group'        => 'hero',
-                    'type'         => 'image',
+                    'group' => 'hero',
+                    'type' => 'image',
                 ]
             );
         } elseif ($request->boolean('remove_hero_image') || $request->input('remove_hero_image') === '1') {
@@ -118,11 +118,11 @@ class SettingController extends Controller
                         ]);
                     } else {
                         Setting::create([
-                            'key'          => $key,
-                            'value'        => is_scalar($value) ? (string) $value : json_encode($value),
+                            'key' => $key,
+                            'value' => is_scalar($value) ? (string) $value : json_encode($value),
                             'display_name' => $displayName,
-                            'group'        => $group,
-                            'type'         => $type,
+                            'group' => $group,
+                            'type' => $type,
                         ]);
                     }
                 }
@@ -135,10 +135,10 @@ class SettingController extends Controller
             Setting::updateOrCreate(
                 ['key' => 'hero_title'],
                 [
-                    'value'        => $titleVal,
+                    'value' => $titleVal,
                     'display_name' => 'عنوان الواجهة (Hero Title)',
-                    'group'        => 'hero',
-                    'type'         => 'text',
+                    'group' => 'hero',
+                    'type' => 'text',
                 ]
             );
         }
@@ -148,10 +148,10 @@ class SettingController extends Controller
             Setting::updateOrCreate(
                 ['key' => 'hero_description'],
                 [
-                    'value'        => $descrVal,
+                    'value' => $descrVal,
                     'display_name' => 'وصف الواجهة (Hero Description)',
-                    'group'        => 'hero',
-                    'type'         => 'textarea',
+                    'group' => 'hero',
+                    'type' => 'textarea',
                 ]
             );
         }
@@ -171,7 +171,7 @@ class SettingController extends Controller
         }
 
         return $this->successResponse([
-            'map'      => $map,
+            'map' => $map,
             'settings' => SettingResource::collection($allSettings),
         ], 'Settings updated successfully.');
     }
@@ -184,10 +184,10 @@ class SettingController extends Controller
         $setting = Setting::where('key', $key)->firstOrFail();
 
         $validated = $request->validate([
-            'value'        => 'nullable',
+            'value' => 'nullable',
             'display_name' => 'sometimes|string|max:255',
-            'group'        => 'sometimes|string|max:50',
-            'type'         => 'sometimes|string|max:50',
+            'group' => 'sometimes|string|max:50',
+            'type' => 'sometimes|string|max:50',
         ]);
 
         $setting->update($validated);

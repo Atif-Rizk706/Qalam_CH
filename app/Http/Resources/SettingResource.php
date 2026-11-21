@@ -15,13 +15,13 @@ class SettingResource extends JsonResource
         }
 
         return [
-            'id'           => $this->id,
-            'key'          => $this->key,
-            'value'        => $value,
-            'raw_value'    => $this->value,
+            'id' => $this->id,
+            'key' => $this->key,
+            'value' => $value,
+            'raw_value' => $this->value,
             'display_name' => $this->display_name,
-            'group'        => $this->group,
-            'type'         => $this->type,
+            'group' => $this->group,
+            'type' => $this->type,
         ];
     }
 
